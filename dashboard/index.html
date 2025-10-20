@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AE Sub Tracker - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Alpha Extract Subscription Dashboard</h1>
+            <button id="refreshBtn" class="refresh-btn">Refresh Data</button>
+        </header>
+
+        <!-- Goal Progress Section -->
+        <section class="goals-section">
+            <h2>Goal Progress</h2>
+            <div class="goals-grid">
+                <div class="goal-card">
+                    <h3>Operational Cost Goal</h3>
+                    <p class="goal-amount">$3,420.00</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="goal1-progress"></div>
+                    </div>
+                    <div class="goal-stats">
+                        <span id="goal1-current">$0</span>
+                        <span id="goal1-percent">0%</span>
+                    </div>
+                    <p class="goal-remaining">Remaining: <span id="goal1-remaining">$3,420</span></p>
+                </div>
+
+                <div class="goal-card">
+                    <h3>Team Trip Goal</h3>
+                    <p class="goal-amount">$1,000.00</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="goal2-progress"></div>
+                    </div>
+                    <div class="goal-stats">
+                        <span id="goal2-current">$0</span>
+                        <span id="goal2-percent">0%</span>
+                    </div>
+                    <p class="goal-remaining">Remaining: <span id="goal2-remaining">$1,000</span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Metrics Section -->
+        <section class="metrics-section">
+            <h2>Key Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Total Revenue</h3>
+                    <p class="metric-value" id="total-revenue">$0</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Active Subscribers</h3>
+                    <p class="metric-value" id="active-subs">0</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Monthly Revenue</h3>
+                    <p class="metric-value" id="monthly-revenue">$0</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Avg Transaction</h3>
+                    <p class="metric-value" id="avg-transaction">$0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Revenue by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Monthly Revenue Trend</h3>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Subscription Status Section -->
+        <section class="status-section">
+            <h2>Subscription Status</h2>
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>Active</h3>
+                    <p class="status-value" id="status-active">0</p>
+                </div>
+                <div class="status-card">
+                    <h3>Inactive</h3>
+                    <p class="status-value" id="status-inactive">0</p>
+                </div>
+                <div class="status-card">
+                    <h3>Paid Stripe</h3>
+                    <p class="status-value" id="category-stripe">0</p>
+                </div>
+                <div class="status-card">
+                    <h3>Paid Nowpayments</h3>
+                    <p class="status-value" id="category-nowpayments">0</p>
+                </div>
+                <div class="status-card">
+                    <h3>Giveaways</h3>
+                    <p class="status-value" id="category-giveaway">0</p>
+                </div>
+                <div class="status-card alert">
+                    <h3>Expired (Need Update)</h3>
+                    <p class="status-value" id="expired-count">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Subscriptions Table -->
+        <section class="table-section">
+            <h2>Recent Subscriptions</h2>
+            <div class="table-container">
+                <table id="subscriptions-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                            <th>Transaction Date</th>
+                            <th>Expiration Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
