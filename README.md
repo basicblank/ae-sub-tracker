@@ -15,7 +15,7 @@ A subscription tracking system for Alpha Extract, combining Google Sheets with a
 - Notes
 
 **Goals:**
-1. **Operational Cost Goal**: $285 (1.5 years × $2,280/year)
+1. **Operational Cost Goal**: $3,420 (1.5 years × $2,280/year)
 2. **Team Trip Goal**: $1,000
 
 ## Features
@@ -47,4 +47,5 @@ AE Sub Tracker/
 ## Getting Started
 
 See `sheets-setup/setup-guide.md` for instructions on implementing the Google Sheets enhancements.
+
 
