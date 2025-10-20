@@ -39,7 +39,14 @@ function setupEventListeners() {
 async function loadData() {
     try {
         console.log('Loading data from Google Sheets...');
-        const response = await fetch(WEB_APP_URL);
+        console.log('Fetching from:', WEB_APP_URL);
+
+        const response = await fetch(WEB_APP_URL, {
+            method: 'GET',
+            redirect: 'follow'
+        });
+
+        console.log('Response received:', response.status, response.statusText);
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -47,6 +54,7 @@ async function loadData() {
 
         const data = await response.json();
         console.log('Data loaded successfully:', data);
+        console.log('Number of subscriptions:', data.subscriptions ? data.subscriptions.length : 0);
 
         subscriptionData = data;
         updateDashboard();
@@ -56,9 +64,12 @@ async function loadData() {
         refreshBtn.textContent = 'Refresh Data';
         refreshBtn.disabled = false;
 
+        console.log('Dashboard updated successfully!');
+
     } catch (error) {
         console.error('Error loading data:', error);
-        alert('Failed to load data from Google Sheets. Please check the console for details.');
+        console.error('Error details:', error.message, error.stack);
+        alert('Failed to load data from Google Sheets. Error: ' + error.message);
 
         // Reset refresh button
         const refreshBtn = document.getElementById('refreshBtn');
