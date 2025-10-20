@@ -9,7 +9,7 @@ let subscriptionData = {
 // Goals configuration
 const GOALS = {
     operational: 3420,
-    teamTrip: 1000
+    teamTrip: 1500
 };
 
 // Tax rate for Stripe payments
@@ -188,18 +188,27 @@ function updateGoalProgress() {
     // Goal 1: Operational Cost
     const goal1Progress = Math.min((totalRevenue / GOALS.operational) * 100, 100);
     const goal1Remaining = Math.max(GOALS.operational - totalRevenue, 0);
+    const goal1Current = Math.min(totalRevenue, GOALS.operational);
 
     document.getElementById('goal1-progress').style.width = `${goal1Progress}%`;
-    document.getElementById('goal1-current').textContent = `$${totalRevenue.toFixed(2)}`;
+    document.getElementById('goal1-current').textContent = `$${goal1Current.toFixed(2)}`;
     document.getElementById('goal1-percent').textContent = `${goal1Progress.toFixed(1)}%`;
     document.getElementById('goal1-remaining').textContent = `$${goal1Remaining.toFixed(2)}`;
 
-    // Goal 2: Team Trip
-    const goal2Progress = Math.min((totalRevenue / GOALS.teamTrip) * 100, 100);
-    const goal2Remaining = Math.max(GOALS.teamTrip - totalRevenue, 0);
+    // Goal 2: Team Trip - Only allocate after operational cost is met
+    let goal2Current = 0;
+    let goal2Progress = 0;
+    let goal2Remaining = GOALS.teamTrip;
+
+    if (totalRevenue > GOALS.operational) {
+        // Operational goal met, now allocate excess to team trip
+        goal2Current = totalRevenue - GOALS.operational;
+        goal2Progress = Math.min((goal2Current / GOALS.teamTrip) * 100, 100);
+        goal2Remaining = Math.max(GOALS.teamTrip - goal2Current, 0);
+    }
 
     document.getElementById('goal2-progress').style.width = `${goal2Progress}%`;
-    document.getElementById('goal2-current').textContent = `$${totalRevenue.toFixed(2)}`;
+    document.getElementById('goal2-current').textContent = `$${goal2Current.toFixed(2)}`;
     document.getElementById('goal2-percent').textContent = `${goal2Progress.toFixed(1)}%`;
     document.getElementById('goal2-remaining').textContent = `$${goal2Remaining.toFixed(2)}`;
 }
