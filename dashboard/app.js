@@ -118,7 +118,10 @@ function getCurrentMonthRevenue() {
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
 
-    return subscriptionData.subscriptions.reduce((sum, sub) => {
+    console.log(`Calculating current month revenue for: ${currentDate.toLocaleString('default', { month: 'long' })} ${currentYear} (month index: ${currentMonth})`);
+
+    let total = 0;
+    subscriptionData.subscriptions.forEach(sub => {
         const activeMonths = sub.activeMonths || 1;
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
@@ -130,11 +133,14 @@ function getCurrentMonthRevenue() {
             checkDate.setMonth(startDate.getMonth() + i);
 
             if (checkDate.getMonth() === currentMonth && checkDate.getFullYear() === currentYear) {
-                return sum + revenuePerMonth;
+                console.log(`  ${sub.email}: +$${revenuePerMonth.toFixed(2)} (${activeMonths} months, started ${sub.transactionDate})`);
+                total += revenuePerMonth;
             }
         }
-        return sum;
-    }, 0);
+    });
+
+    console.log(`Total current month revenue: $${total.toFixed(2)}`);
+    return total;
 }
 
 // Get average transaction value (after tax)
