@@ -1,8 +1,14 @@
 # Google Sheets Formulas for AE Sub Tracker
 
-## Important Note on Tax Deduction
+## Important Notes
 
+### Tax Deduction
 **Stripe payments are subject to 23% tax.** All revenue calculations for "Paid Stripe" category should automatically deduct 23% to show actual revenue received.
+
+### Multi-Month Subscriptions
+For subscriptions with "Active for Months" > 1, the web dashboard automatically distributes revenue evenly across all months. For example:
+- A subscription with $78 paid and 2 active months = $39 allocated to month 1 and $39 to month 2
+- In Google Sheets, you can track this using the "Active for Months" column and divide the total by that number for monthly calculations
 
 ## Sheet Structure
 

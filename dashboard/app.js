@@ -119,9 +119,19 @@ function getCurrentMonthRevenue() {
     const currentYear = currentDate.getFullYear();
 
     return subscriptionData.subscriptions.reduce((sum, sub) => {
-        const transDate = new Date(sub.transactionDate);
-        if (transDate.getMonth() === currentMonth && transDate.getFullYear() === currentYear) {
-            return sum + getActualRevenue(sub.paid, sub.category);
+        const activeMonths = sub.activeMonths || 1;
+        const totalRevenue = getActualRevenue(sub.paid, sub.category);
+        const revenuePerMonth = totalRevenue / activeMonths;
+        const startDate = new Date(sub.transactionDate);
+
+        // Check if current month falls within the subscription period
+        for (let i = 0; i < activeMonths; i++) {
+            const checkDate = new Date(startDate);
+            checkDate.setMonth(startDate.getMonth() + i);
+
+            if (checkDate.getMonth() === currentMonth && checkDate.getFullYear() === currentYear) {
+                return sum + revenuePerMonth;
+            }
         }
         return sum;
     }, 0);
@@ -169,13 +179,24 @@ function getMonthlyRevenue() {
     const monthlyData = {};
 
     subscriptionData.subscriptions.forEach(sub => {
-        const date = new Date(sub.transactionDate);
-        const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+        const activeMonths = sub.activeMonths || 1;
+        const totalRevenue = getActualRevenue(sub.paid, sub.category);
+        const revenuePerMonth = totalRevenue / activeMonths;
 
-        if (!monthlyData[monthYear]) {
-            monthlyData[monthYear] = 0;
+        const startDate = new Date(sub.transactionDate);
+
+        // Distribute revenue across all active months
+        for (let i = 0; i < activeMonths; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setMonth(startDate.getMonth() + i);
+
+            const monthYear = `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`;
+
+            if (!monthlyData[monthYear]) {
+                monthlyData[monthYear] = 0;
+            }
+            monthlyData[monthYear] += revenuePerMonth;
         }
-        monthlyData[monthYear] += getActualRevenue(sub.paid, sub.category);
     });
 
     return monthlyData;
