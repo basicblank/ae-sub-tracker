@@ -182,6 +182,7 @@ function getRevenueByCategory() {
 
 // Get monthly revenue data (after tax)
 function getMonthlyRevenue() {
+    console.log('=== CALCULATING MONTHLY REVENUE ===');
     const monthlyData = {};
 
     subscriptionData.subscriptions.forEach(sub => {
@@ -191,15 +192,15 @@ function getMonthlyRevenue() {
 
         const startDate = new Date(sub.transactionDate);
 
-        // Debug logging for November issue
-        if (activeMonths > 1 && sub.paid > 50) {
+        // Debug logging for ALL subscriptions
+        if (activeMonths > 1) {
             console.log('Multi-month subscription:', {
                 email: sub.email,
                 paid: sub.paid,
                 activeMonths: activeMonths,
                 transactionDate: sub.transactionDate,
-                startDate: startDate,
-                revenuePerMonth: revenuePerMonth
+                startDate: startDate.toDateString(),
+                revenuePerMonth: revenuePerMonth.toFixed(2)
             });
         }
 
@@ -216,8 +217,13 @@ function getMonthlyRevenue() {
             monthlyData[monthYear] += revenuePerMonth;
 
             // Debug logging
-            if (activeMonths > 1 && sub.paid > 50) {
-                console.log(`  Month ${i + 1}: ${monthYear} gets $${revenuePerMonth.toFixed(2)}`);
+            if (activeMonths > 1) {
+                console.log(`  → Month ${i + 1}: ${monthYear} gets $${revenuePerMonth.toFixed(2)}`);
+            }
+
+            // Special logging for November
+            if (monthYear.includes('Nov 2025')) {
+                console.log(`!!! NOVEMBER ENTRY: ${sub.email} adding $${revenuePerMonth.toFixed(2)}`);
             }
         }
     });
