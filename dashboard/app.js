@@ -185,6 +185,18 @@ function getMonthlyRevenue() {
 
         const startDate = new Date(sub.transactionDate);
 
+        // Debug logging for November issue
+        if (activeMonths > 1 && sub.paid > 50) {
+            console.log('Multi-month subscription:', {
+                email: sub.email,
+                paid: sub.paid,
+                activeMonths: activeMonths,
+                transactionDate: sub.transactionDate,
+                startDate: startDate,
+                revenuePerMonth: revenuePerMonth
+            });
+        }
+
         // Distribute revenue across all active months
         for (let i = 0; i < activeMonths; i++) {
             const currentDate = new Date(startDate);
@@ -196,9 +208,15 @@ function getMonthlyRevenue() {
                 monthlyData[monthYear] = 0;
             }
             monthlyData[monthYear] += revenuePerMonth;
+
+            // Debug logging
+            if (activeMonths > 1 && sub.paid > 50) {
+                console.log(`  Month ${i + 1}: ${monthYear} gets $${revenuePerMonth.toFixed(2)}`);
+            }
         }
     });
 
+    console.log('Monthly revenue breakdown:', monthlyData);
     return monthlyData;
 }
 
