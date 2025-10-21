@@ -19,6 +19,10 @@ const STRIPE_TAX_RATE = 0.23;
 let categoryChart = null;
 let monthlyChart = null;
 
+// Pagination
+let currentPage = 1;
+const itemsPerPage = 10;
+
 // Initialize dashboard
 function init() {
     setupEventListeners();
@@ -429,22 +433,32 @@ function updateMonthlyChart() {
 }
 
 // Update subscriptions table
-function updateTable() {
+function updateTable(page = 1) {
+    currentPage = page;
     const tbody = document.getElementById('table-body');
     tbody.innerHTML = '';
 
+    // Filter for active subscriptions only
+    const activeSubs = subscriptionData.subscriptions.filter(sub => sub.active === "Yes");
+
     // Sort by transaction date (most recent first)
-    const sortedSubs = [...subscriptionData.subscriptions].sort((a, b) => {
-        return new Date(b.transactionDate) - new Date(a.transactionDate);
+    const sortedSubs = [...activeSubs].sort((a, b) => {
+        return parseTransactionDate(b.transactionDate) - parseTransactionDate(a.transactionDate);
     });
 
-    // Show only the 10 most recent
-    sortedSubs.slice(0, 10).forEach(sub => {
+    // Calculate pagination
+    const totalPages = Math.ceil(sortedSubs.length / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageItems = sortedSubs.slice(startIndex, endIndex);
+
+    // Populate table
+    pageItems.forEach(sub => {
         const row = document.createElement('tr');
 
         // Check if expired
-        const isExpired = sub.active === "Yes" && parseTransactionDate(sub.expirationDate) < new Date();
-        const statusClass = isExpired ? 'expired' : (sub.active === "Yes" ? 'active' : 'inactive');
+        const isExpired = parseTransactionDate(sub.expirationDate) < new Date();
+        const statusClass = isExpired ? 'expired' : 'active';
         const statusText = isExpired ? 'Expired' : sub.active;
 
         // Calculate actual revenue for display
@@ -464,6 +478,44 @@ function updateTable() {
 
         tbody.appendChild(row);
     });
+
+    // Update pagination controls
+    updatePagination(totalPages, sortedSubs.length);
+}
+
+// Update pagination controls
+function updatePagination(totalPages, totalItems) {
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = '';
+
+    if (totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+
+    paginationContainer.style.display = 'flex';
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Previous';
+    prevBtn.className = 'pagination-btn';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => updateTable(currentPage - 1);
+    paginationContainer.appendChild(prevBtn);
+
+    // Page numbers
+    const pageInfo = document.createElement('span');
+    pageInfo.className = 'page-info';
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${totalItems} active subscriptions)`;
+    paginationContainer.appendChild(pageInfo);
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next →';
+    nextBtn.className = 'pagination-btn';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => updateTable(currentPage + 1);
+    paginationContainer.appendChild(nextBtn);
 }
 
 // Initialize when DOM is ready
