@@ -87,6 +87,23 @@ function updateDashboard() {
     updateTable();
 }
 
+// Parse date string in MM/DD/YYYY format
+function parseTransactionDate(dateStr) {
+    if (!dateStr) return new Date();
+
+    // Handle MM/DD/YYYY format
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+        const month = parseInt(parts[0]) - 1; // JavaScript months are 0-indexed
+        const day = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        return new Date(year, month, day);
+    }
+
+    // Fallback to default parsing
+    return new Date(dateStr);
+}
+
 // Calculate actual revenue received (after tax for Stripe)
 function getActualRevenue(amount, category) {
     if (category === "Paid Stripe") {
@@ -125,7 +142,7 @@ function getCurrentMonthRevenue() {
         const activeMonths = sub.activeMonths || 1;
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
-        const startDate = new Date(sub.transactionDate);
+        const startDate = parseTransactionDate(sub.transactionDate);
 
         // Check if current month falls within the subscription period
         for (let i = 0; i < activeMonths; i++) {
@@ -190,7 +207,7 @@ function getMonthlyRevenue() {
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
 
-        const startDate = new Date(sub.transactionDate);
+        const startDate = parseTransactionDate(sub.transactionDate);
 
         // Debug logging for ALL subscriptions
         if (activeMonths > 1) {
@@ -426,7 +443,7 @@ function updateTable() {
         const row = document.createElement('tr');
 
         // Check if expired
-        const isExpired = sub.active === "Yes" && new Date(sub.expirationDate) < new Date();
+        const isExpired = sub.active === "Yes" && parseTransactionDate(sub.expirationDate) < new Date();
         const statusClass = isExpired ? 'expired' : (sub.active === "Yes" ? 'active' : 'inactive');
         const statusText = isExpired ? 'Expired' : sub.active;
 
