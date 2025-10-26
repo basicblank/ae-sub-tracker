@@ -8,7 +8,7 @@ let subscriptionData = {
 
 // Goals configuration
 const GOALS = {
-    operational: 3420,
+    operational: 3001.8,
     teamTrip: 1500
 };
 
