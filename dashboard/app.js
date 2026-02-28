@@ -150,8 +150,8 @@ function getCurrentMonthRevenue() {
 
         // Check if current month falls within the subscription period
         for (let i = 0; i < activeMonths; i++) {
-            const checkDate = new Date(startDate);
-            checkDate.setMonth(startDate.getMonth() + i);
+            // Use day=1 to avoid month overflow (e.g. Jan 31 + 1 month = Mar 3 in JS)
+            const checkDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
 
             if (checkDate.getMonth() === currentMonth && checkDate.getFullYear() === currentYear) {
                 console.log(`  ${sub.email}: +$${revenuePerMonth.toFixed(2)} (${activeMonths} months, started ${sub.transactionDate})`);
@@ -227,8 +227,8 @@ function getMonthlyRevenue() {
 
         // Distribute revenue across all active months
         for (let i = 0; i < activeMonths; i++) {
-            const currentDate = new Date(startDate);
-            currentDate.setMonth(startDate.getMonth() + i);
+            // Use day=1 to avoid month overflow (e.g. Jan 31 + 1 month = Mar 3 in JS)
+            const currentDate = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
 
             const monthYear = `${currentDate.toLocaleString('default', { month: 'short' })} ${currentDate.getFullYear()}`;
 
