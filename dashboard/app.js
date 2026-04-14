@@ -116,11 +116,13 @@ function getActualRevenue(amount, category) {
     return amount;
 }
 
-// Calculate total revenue
+// Calculate total revenue (active subscriptions only)
 function getTotalRevenue() {
-    return subscriptionData.subscriptions.reduce((sum, sub) => {
-        return sum + getActualRevenue(sub.paid, sub.category);
-    }, 0);
+    return subscriptionData.subscriptions
+        .filter(sub => sub.active === "Yes")
+        .reduce((sum, sub) => {
+            return sum + getActualRevenue(sub.paid, sub.category);
+        }, 0);
 }
 
 // Get active subscriptions count
@@ -142,7 +144,9 @@ function getCurrentMonthRevenue() {
     console.log(`Calculating current month revenue for: ${currentDate.toLocaleString('default', { month: 'long' })} ${currentYear} (month index: ${currentMonth})`);
 
     let total = 0;
-    subscriptionData.subscriptions.forEach(sub => {
+    subscriptionData.subscriptions
+        .filter(sub => sub.active === "Yes")
+        .forEach(sub => {
         const activeMonths = sub.activeMonths || 1;
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
@@ -164,9 +168,9 @@ function getCurrentMonthRevenue() {
     return total;
 }
 
-// Get average transaction value (after tax)
+// Get average transaction value (after tax, active subscriptions only)
 function getAvgTransaction() {
-    const paidSubs = subscriptionData.subscriptions.filter(sub => sub.paid > 0);
+    const paidSubs = subscriptionData.subscriptions.filter(sub => sub.active === "Yes" && sub.paid > 0);
     if (paidSubs.length === 0) return 0;
     const total = paidSubs.reduce((sum, sub) => sum + getActualRevenue(sub.paid, sub.category), 0);
     return total / paidSubs.length;
@@ -177,7 +181,7 @@ function getExpiredCount() {
     const today = new Date();
     return subscriptionData.subscriptions.filter(sub => {
         if (sub.active === "Yes") {
-            const expDate = new Date(sub.expirationDate);
+            const expDate = parseTransactionDate(sub.expirationDate);
             return expDate < today;
         }
         return false;
@@ -189,24 +193,28 @@ function getCategoryCount(category) {
     return subscriptionData.subscriptions.filter(sub => sub.category === category).length;
 }
 
-// Get revenue by category (after tax)
+// Get revenue by category (after tax, active subscriptions only)
 function getRevenueByCategory() {
     const categories = {};
-    subscriptionData.subscriptions.forEach(sub => {
-        if (!categories[sub.category]) {
-            categories[sub.category] = 0;
-        }
-        categories[sub.category] += getActualRevenue(sub.paid, sub.category);
-    });
+    subscriptionData.subscriptions
+        .filter(sub => sub.active === "Yes")
+        .forEach(sub => {
+            if (!categories[sub.category]) {
+                categories[sub.category] = 0;
+            }
+            categories[sub.category] += getActualRevenue(sub.paid, sub.category);
+        });
     return categories;
 }
 
-// Get monthly revenue data (after tax)
+// Get monthly revenue data (after tax, active subscriptions only, sorted chronologically)
 function getMonthlyRevenue() {
     console.log('=== CALCULATING MONTHLY REVENUE ===');
     const monthlyData = {};
 
-    subscriptionData.subscriptions.forEach(sub => {
+    subscriptionData.subscriptions
+        .filter(sub => sub.active === "Yes")
+        .forEach(sub => {
         const activeMonths = sub.activeMonths || 1;
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
@@ -249,8 +257,16 @@ function getMonthlyRevenue() {
         }
     });
 
-    console.log('Monthly revenue breakdown:', monthlyData);
-    return monthlyData;
+    // Sort months chronologically
+    const sortedMonthlyData = {};
+    Object.keys(monthlyData)
+        .sort((a, b) => new Date(a) - new Date(b))
+        .forEach(key => {
+            sortedMonthlyData[key] = monthlyData[key];
+        });
+
+    console.log('Monthly revenue breakdown:', sortedMonthlyData);
+    return sortedMonthlyData;
 }
 
 // Update goal progress
