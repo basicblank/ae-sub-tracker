@@ -108,6 +108,22 @@ function parseTransactionDate(dateStr) {
     return new Date(dateStr);
 }
 
+// Derive how many months a subscription covers from its transaction and expiration dates.
+// This makes the "Active for Months" sheet column irrelevant — the expiration date is the source of truth.
+function getEffectiveMonths(sub) {
+    const startDate = parseTransactionDate(sub.transactionDate);
+    const expDate = parseTransactionDate(sub.expirationDate);
+
+    if (!sub.expirationDate || isNaN(expDate.getTime()) || isNaN(startDate.getTime())) {
+        return sub.activeMonths || 1;
+    }
+
+    const months = (expDate.getFullYear() - startDate.getFullYear()) * 12 +
+                   (expDate.getMonth() - startDate.getMonth());
+
+    return months > 0 ? months : (sub.activeMonths || 1);
+}
+
 // Calculate actual revenue received (after tax for Stripe)
 function getActualRevenue(amount, category) {
     if (category === "Paid Stripe") {
@@ -147,7 +163,7 @@ function getCurrentMonthRevenue() {
     subscriptionData.subscriptions
         .filter(sub => sub.active === "Yes")
         .forEach(sub => {
-        const activeMonths = sub.activeMonths || 1;
+        const activeMonths = getEffectiveMonths(sub);
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
         const startDate = parseTransactionDate(sub.transactionDate);
@@ -215,7 +231,7 @@ function getMonthlyRevenue() {
     subscriptionData.subscriptions
         .filter(sub => sub.active === "Yes")
         .forEach(sub => {
-        const activeMonths = sub.activeMonths || 1;
+        const activeMonths = getEffectiveMonths(sub);
         const totalRevenue = getActualRevenue(sub.paid, sub.category);
         const revenuePerMonth = totalRevenue / activeMonths;
 
